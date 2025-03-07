@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Ganache",
+    "chainId": 1337,
+    "userKeys": [
+      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+    ],
+    "ownerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "operatorKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "relayerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "adminKeys": [
+      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+    ],
+    "threshold": 4,
+    "lastRelayedBlock": 478,
+    "lastExpressedBlock": 478,
+    "gatewayAddress": "0x6440678fa7fd18938A9EC86b947F5890c5F79469",
+    "gasReceiverAddress": "0xD3203110C5Eec7c2E2C7E1ae0921591C3403B49e",
+    "constAddressDeployerAddress": "0x5caF86F31C03fF60f92372bd8E24Dd88def2f41B",
+    "create3DeployerAddress": "0xB4e5c7c7838df2bB8C87224d2AA2638D6a966654",
+    "InterchainTokenService": "0x8aB170BED1ceb6239F9e54c1B64a8fE5c10bbdcE",
+    "InterchainTokenFactory": "0x60891500645C1398cA434f1C4695150881d30DE0",
+    "tokens": {},
+    "rpc": "http://127.0.0.1:7545"
+  }
+]

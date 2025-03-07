@@ -1,0 +1,25 @@
+{
+  "name": "axl-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.19"
+  },
+  "dependencies": {
+    "@axelar-network/axelar-cgp-solidity": "^6.4.0",
+    "@axelar-network/axelar-gmp-sdk-solidity": "^6.0.6",
+    "@axelar-network/axelar-local-dev": "^2.3.3",
+    "@axelar-network/interchain-token-service": "^2.1.0",
+    "dotenv": "^16.4.7",
+    "ethers": "^5.7.2",
+    "fs-extra": "^9.1.0"
+  }
+}

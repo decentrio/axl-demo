@@ -1,0 +1,52 @@
+{
+  "Ganache":
+ {
+    "name": "Ganache",
+    "chainId": 1337,
+    "userKeys": [
+      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+    ],
+    "ownerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "operatorKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "relayerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "adminKeys": [
+      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+    ],
+    "threshold": 4,
+    "lastRelayedBlock": 500,
+    "lastExpressedBlock": 500,
+    "gatewayAddress": "0x145FcF4F24383B6a03af96ed35c4363E0F629446",
+    "gasReceiverAddress": "0x7f497e4da7314d05C053f3CA5A7baA70362Ed3Bb",
+    "constAddressDeployerAddress": "0xa637b086362E0602Ce867bE06F9a82922A49148b",
+    "create3DeployerAddress": "0x89a0314Bc053d13C7B3cD16E8C1a13Bb2e859893",
+    "InterchainTokenService": "0x759D376F9F112Eda92c7ce92f5425148435BFe42",
+    "InterchainTokenFactory": "0x7cbEc02f03c226812a2C9bD06931B29226605a55",
+    "tokens": {},
+    "rpc": "http://127.0.0.1:7545"
+  },
+  "Realio":
+  {
+    "name": "Realio",
+    "chainId": 7777,
+    "userKeys": [
+      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+    ],
+    "ownerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "operatorKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "relayerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "adminKeys": [
+      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+    ],
+    "threshold": 4,
+    "lastRelayedBlock": 2055,
+    "lastExpressedBlock": 2055,
+    "gatewayAddress": "0xa078240981a09c8e6E333947607B6DB37dAaE1a0",
+    "gasReceiverAddress": "0x7A0950b34caA2B0D17C94aaD5454181FC5C9426b",
+    "constAddressDeployerAddress": "0x08D432588Dd192B7e6E74F2ba3cb04fd4065865A",
+    "create3DeployerAddress": "0x13b8492f6B943D81bD4783fe2e2987347E2F79A7",
+    "InterchainTokenService": "0x65F05260d5723dfCf2538C913fbdbA52949ee53e",
+    "InterchainTokenFactory": "0xACEe8a240F8f9E0A1411B321CD72705001091E32",
+    "tokens": {},
+    "rpc": "http://127.0.0.1:8545"
+  }
+}
