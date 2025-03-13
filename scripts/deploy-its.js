@@ -18,6 +18,7 @@ const {
     InterchainTokenService__factory: InterchainTokenServiceFactory,
     InterchainTokenFactory__factory: InterchainTokenFactoryFactory,
 } = require('@axelar-network/axelar-local-dev/dist/types/factories/@axelar-network/interchain-token-service/contracts');
+
 async function main() {
     const args = process.argv.slice(2);
     const chainName = args[0];
