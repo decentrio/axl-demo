@@ -1,5 +1,29 @@
 {
-    "tokens": [
-        "0xFA8508C2c794E364De49c04Fce400e950Aab9504"
-    ]
+  "name": "ganache",
+  "chainId": 1337,
+  "userKeys": [
+    "0x6e204b43800b0bc4fc4a48f700c9cf0aa82caa61de66d5a1069ea15daac56675",
+    "0x80a1426a1c206b16679e870fb7243eb6a27ab49964823480ae2741f466747044",
+    "0x7999ee199b1c2abf8f243a7955d5798d47e7677f4730084d2f19826344e816c7",
+    "0xce071de2470f62df93dc439b8cb1b415b280ee61119166909fce8d5f60a608fc",
+    "0x7dd5bb94cfa97cf0c352dba3aa917c32587682184761558605fc811d18d86ffc"
+  ],
+  "ownerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+  "operatorKey": "0x5df39d4ef7b8bda18853cd9db806c64adcc217072badb0543e94c00f5dfe1174",
+  "relayerKey": "0x9d6d5aa041af8bdb573b122a295def0eec1c3a3efc49cb7ee02ce9065fff7c56",
+  "adminKeys": [
+    "0x8e4e6e3fdd7c6d3293e1b63cf22969c18916be6738807cf1bd900b5c3a359970"
+  ],
+  "threshold": 1,
+  "lastRelayedBlock": 535,
+  "lastExpressedBlock": 535,
+  "gatewayAddress": "0x4Ed017c7F89CD66A72D4367CaC0eF796237Bf8a7",
+  "gasReceiverAddress": "0x98ea7512E4C0A0Cc59524704725EF1916Db7d31B",
+  "constAddressDeployerAddress": "0x45FF21527d8D2F8c11162df2e183a45619bB0dD0",
+  "create3DeployerAddress": "0x54d0eE17DB6Fe112b8946b13d835E9AF712988eE",
+  "InterchainTokenService": "0xd609A49d7542351C54e156f990BD49b326eb4dC4",
+  "InterchainTokenFactory": "0xd11ecc46EFec0fbc1fA6C319BF3C0de6A43d33cE",
+  "tokens": [
+    "0xFA8508C2c794E364De49c04Fce400e950Aab9504"
+  ]
 }

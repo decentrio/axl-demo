@@ -8,15 +8,21 @@ const {
     InterchainToken,
     TokenManager,
     TokenHandler,
-    InterchainTokenService,
-    InterchainTokenFactory,
+    InterchainTokenService: InterchainTokenServiceContract,
+    InterchainTokenFactory: InterchainTokenFactoryContract,
     InterchainProxy,
 } = require('@axelar-network/axelar-local-dev/dist/contracts');
+const path = require("path")
+const fs = require("fs")
+const {
+    InterchainTokenService__factory: InterchainTokenServiceFactory,
+    InterchainTokenFactory__factory: InterchainTokenFactoryFactory,
+} = require('@axelar-network/axelar-local-dev/dist/types/factories/@axelar-network/interchain-token-service/contracts');
 async function main() {
     const args = process.argv.slice(2);
     const chainName = args[0];
-    const chain = await deployITS(chainConfigs[chainName].url, { name: chainName })
-    saveDeployment(chainName, (await chain).getInfo())
+    const chainInfo = await deployITS(chainConfigs[chainName].url, { name: chainName })
+    saveDeployment(chainName, chainInfo)
 }
 
 async function deployITS(rpcUrl, options = {}) {
@@ -49,9 +55,9 @@ async function deployITS(rpcUrl, options = {}) {
     await chain.deployCreate3Deployer();
     await chain.deployGateway();
     await chain.deployGasReceiver();
-    chain = await deployInterchainTokenService(chain);
-    chain.tokens = {};
-    return chain;
+    const newChain = await deployInterchainTokenService(chain);
+    const chainInfo = await newChain.getInfo()
+    return chainInfo;
 }
 
 async function deployInterchainTokenService(chain) {
@@ -71,8 +77,8 @@ async function deployInterchainTokenService(chain) {
     const tokenHandler = await deployContract(wallet, TokenHandler, []);
     await sleep(2000)
     const interchainTokenFactoryAddress = await chain.create3Deployer.deployedAddress('0x', wallet.address, factorySalt);
-    await sleep(2000)
-    const tokenServiceImplementation = await deployContract(wallet, InterchainTokenService, [
+
+    const tokenServiceImplementation = await deployContract(wallet, InterchainTokenServiceContract, [
         tokenManagerDeployer.address,
         interchainTokenDeployer.address,
         chain.gateway.address,
@@ -90,15 +96,16 @@ async function deployInterchainTokenService(chain) {
         defaultAbiCoder.encode(['address', 'string', 'string[]', 'string[]'], [wallet.address, chain.name, [], []])
     ).data;
     await chain.create3Deployer.connect(wallet).deploy(bytecode, deploymentSalt);
-    chain.interchainTokenService = InterchainTokenService.connect(interchainTokenServiceAddress, wallet);
+    chain.interchainTokenService = InterchainTokenServiceFactory.connect(interchainTokenServiceAddress, wallet);
 
-    const tokenFactoryImplementation = await deployContract(wallet, InterchainTokenFactory, [interchainTokenServiceAddress]);
+    const tokenFactoryImplementation = await deployContract(wallet, InterchainTokenFactoryContract, [interchainTokenServiceAddress]);
     await sleep(2000)
 
     bytecode = factory.getDeployTransaction(tokenFactoryImplementation.address, wallet.address, '0x').data;
 
     await chain.create3Deployer.connect(wallet).deploy(bytecode, factorySalt);
-    chain.interchainTokenFactory = InterchainTokenFactory.connect(interchainTokenFactoryAddress, wallet);
+    chain.interchainTokenFactory = InterchainTokenFactoryFactory.connect(interchainTokenFactoryAddress, wallet);
+
     console.log(`Deployed at ${chain.interchainTokenService.address}.`);
     return chain;
 }
@@ -121,11 +128,11 @@ function saveDeployment(networkName, info) {
     let config = info;
     if (!fs.existsSync(configDir)) {
         fs.mkdirSync(configDir, { recursive: true });
-    } 
+    }
 
     if (fs.existsSync(configFile)) {
         let oldConfig = JSON.parse(fs.readFileSync(configFile, "utf8"));
-        config.tokens = oldConfig.tokens 
+        config.tokens = oldConfig.tokens
     }
 
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
