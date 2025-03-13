@@ -18,6 +18,7 @@ const {
     InterchainTokenService__factory: InterchainTokenServiceFactory,
     InterchainTokenFactory__factory: InterchainTokenFactoryFactory,
 } = require('@axelar-network/axelar-local-dev/dist/types/factories/@axelar-network/interchain-token-service/contracts');
+const { getDefaultLocalWallets } = require('./helper.js');
 
 async function main() {
     const args = process.argv.slice(2);
@@ -109,17 +110,6 @@ async function deployInterchainTokenService(chain) {
 
     console.log(`Deployed at ${chain.interchainTokenService.address}.`);
     return chain;
-}
-
-function getDefaultLocalWallets() {
-    const defaultSeed = process.env.SEED ? process.env.SEED : "recall ready story unable gesture load devote narrow polar hire damage host";
-    const wallets = [];
-
-    for (let i = 0; i < 10; i++) {
-        wallets.push(Wallet.fromMnemonic(defaultSeed, `m/44'/60'/0'/0/${i}`));
-    }
-
-    return wallets;
 }
 
 function saveDeployment(networkName, info) {
