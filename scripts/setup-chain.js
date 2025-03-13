@@ -1,6 +1,8 @@
-const { Network, relay, EvmRelayer, networks } = require('@axelar-network/axelar-local-dev');
+const { Network, relay, EvmRelayer, networks, deployContract } = require('@axelar-network/axelar-local-dev');
 const { ethers, Wallet } = require('ethers');
 const { outputJsonSync } = require('fs-extra');
+const crypto = require("crypto");
+const fs = require("fs");
 const seed = "include forward empty route clown nature era decorate settle market defy certain"
 
 const defaultEvmRelayer = new EvmRelayer();
@@ -10,7 +12,7 @@ async function main() {
     // await setupNetwork("Ganache", "http://127.0.0.1:7545")
     const chains = [
         { name: "Ganache", rpcUrl: "http://127.0.0.1:7545" },
-        { name: "Realio", rpcUrl: "http://127.0.0.1:8545" }
+        // { name: "Realio", rpcUrl: "http://127.0.0.1:8545" }
     ]
     await setupAndExport(chains)
 }
@@ -54,9 +56,11 @@ async function setupAndExport(chains) {
 
     // const evmRelayer = _options.relayers['evm'];
     // evmRelayer?.subscribeExpressCall();
-    await deployTokens(networks)
+    // await deployTokens(networks)
+    await deployCustomTokens(networks)
+    networks[0].deployCon
     setJSON(networkInfos, _options.chainOutputPath);
-    await sendTokens(networks)
+    // await sendTokens(networks)
     return networks;
 }
 
@@ -76,6 +80,78 @@ async function deployTokens(networks) {
     sleep(5000)
     await realio.giveToken(realioWallet.address, "aUSDX", BigInt(100e6));
     sleep(2000)
+}
+
+async function deployCustomTokens(networks) {
+    contractJson = JSON.parse(fs.readFileSync("contracts/DSTRXToken.json", "utf8"));
+    const salt = "0x" + crypto.randomBytes(32).toString("hex");
+
+    // deloy token on Ganache
+    const ganache = networks[0]
+    const userWallet = ganache.ownerWallet
+    ganacheToken = await deployContract(userWallet, contractJson, [userWallet.address])
+    // await ganache.giveToken(userWallet.address, "DSTRX", BigInt(100e6));
+    console.log("Deploy token on Ganache at", ganacheToken.address)
+    sleep(2000)
+
+    // register token metadata on Ganache
+    console.log("interchainTokenService", ganache.interchainTokenService)
+    await ganache.interchainTokenService.registerTokenMetadata(
+        ganacheToken.address,
+        ethers.utils.parseEther("0.0001"), // gas value
+        { value: ethers.utils.parseEther("0.001") },
+    );
+    sleep(2000)
+
+    // deploy token on Realio
+    const realio = networks[1]
+    const realioWallet = realio.ownerWallet
+    realioToken = await deployContract(realioWallet, contractJson, [realioWallet.address])
+    // await ganache.giveToken(userWallet.address, "DSTRX", BigInt(100e6));
+    console.log("Deploy token on Realio at", realio.address)
+    sleep(2000)
+
+    // register token metadata on Realio
+    await ganache.interchainTokenService.registerTokenMetadata(
+        realioToken.address,
+        ethers.utils.parseEther("0.0001"), // gas value
+        { value: ethers.utils.parseEther("0.001") },
+      );
+    sleep(2000)
+    
+    // register token with Interchain Token Factory on Ganache
+    await ganache.interchainTokenFactory.registerCustomToken(
+        salt, // salt
+        ganacheToken.address, // token address
+        4, // token management type
+        userWallet.address, //  the address of the operator
+        { value: ethers.utils.parseEther("0.001") },
+      );
+      sleep(2000)
+
+    // Link registered token on Realio
+    await ganache.interchainTokenFactory.linkToken(
+        salt, // salt, same as previously used
+        "Realio", // destination chain
+        realioToken.address, // destination token address
+        4, // token manager type
+        userWallet.address, //  the address of the operator - linkParams
+        ethers.utils.parseEther("0.001"), // gas value
+        { value: ethers.utils.parseEther("0.001") },
+    );
+    sleep(2000)
+
+    // Assign the minter role to TokenManager on Ganache
+    tokenId = await ganache.interchainTokenFactory.linkedTokenId(
+        userWallet.address, // sender
+        salt, // salt, same as previously used
+    );
+    const ganacheTokenManagerAddress = await ganache.interchainTokenService.tokenManagerAddress(tokenId);
+    console.log("ganache tokenManagerAddress", ganacheTokenManagerAddress)
+
+    const realioTokenManagerAddress = await realio.interchainTokenService.tokenManagerAddress(tokenId);
+    console.log("realio tokenManagerAddress", realioTokenManagerAddress)
+
 }
 
 async function sendTokens(networks) {
@@ -176,7 +252,7 @@ function getDefaultLocalWallets() {
         wallets.push(Wallet.fromMnemonic(defaultSeed, `m/44'/60'/0'/0/${i}`));
     }
 
-    wallets.push(new Wallet("0x2FAE6AC1EF9AF417F7F3D6DB648FD33D124BA972E4FD5FD68FC2079FF54B3946"))
+    wallets.push(new Wallet("0xCA8920CA65CD664FBCC7A1E3E68E5EEE0CCCD395C61D85E3E8059D0943A4876F"))
 
     return wallets;
 }

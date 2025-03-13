@@ -3,24 +3,52 @@
     "name": "Ganache",
     "chainId": 1337,
     "userKeys": [
-      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+      "0xaf21a242c07bbc6fe98cc3f249d78182851cba4e8a84df3db913b0c5d35bda71"
     ],
-    "ownerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
-    "operatorKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
-    "relayerKey": "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03",
+    "ownerKey": "0xaf21a242c07bbc6fe98cc3f249d78182851cba4e8a84df3db913b0c5d35bda71",
+    "operatorKey": "0xaf21a242c07bbc6fe98cc3f249d78182851cba4e8a84df3db913b0c5d35bda71",
+    "relayerKey": "0xaf21a242c07bbc6fe98cc3f249d78182851cba4e8a84df3db913b0c5d35bda71",
     "adminKeys": [
-      "0x394baf7eb69017d01ea008a16c43ae1292aa27eb44b7b8e58327dc2dcdc78f03"
+      "0xaf21a242c07bbc6fe98cc3f249d78182851cba4e8a84df3db913b0c5d35bda71"
     ],
     "threshold": 4,
-    "lastRelayedBlock": 478,
-    "lastExpressedBlock": 478,
-    "gatewayAddress": "0x6440678fa7fd18938A9EC86b947F5890c5F79469",
-    "gasReceiverAddress": "0xD3203110C5Eec7c2E2C7E1ae0921591C3403B49e",
-    "constAddressDeployerAddress": "0x5caF86F31C03fF60f92372bd8E24Dd88def2f41B",
-    "create3DeployerAddress": "0xB4e5c7c7838df2bB8C87224d2AA2638D6a966654",
-    "InterchainTokenService": "0x8aB170BED1ceb6239F9e54c1B64a8fE5c10bbdcE",
-    "InterchainTokenFactory": "0x60891500645C1398cA434f1C4695150881d30DE0",
-    "tokens": {},
+    "lastRelayedBlock": 440,
+    "lastExpressedBlock": 440,
+    "gatewayAddress": "0xE29A888145E0C885ABD25c19b817de2c7e2E4D4b",
+    "gasReceiverAddress": "0x01E6209eaf16d90011259193C96914CBfca57776",
+    "constAddressDeployerAddress": "0xa637b086362E0602Ce867bE06F9a82922A49148b",
+    "create3DeployerAddress": "0x89a0314Bc053d13C7B3cD16E8C1a13Bb2e859893",
+    "InterchainTokenService": "0xEdBB6579E21e4e85512d958e98abc514E653df82",
+    "InterchainTokenFactory": "0x397280C772FAC83Bf6C98a55D625b5891601EAAA",
+    "tokens": {
+      "aUSDX": "aUSDX"
+    },
     "rpc": "http://127.0.0.1:7545"
+  },
+  {
+    "name": "Realio",
+    "chainId": 9002,
+    "userKeys": [
+      "0x2fae6ac1ef9af417f7f3d6db648fd33d124ba972e4fd5fd68fc2079ff54b3946"
+    ],
+    "ownerKey": "0x2fae6ac1ef9af417f7f3d6db648fd33d124ba972e4fd5fd68fc2079ff54b3946",
+    "operatorKey": "0x2fae6ac1ef9af417f7f3d6db648fd33d124ba972e4fd5fd68fc2079ff54b3946",
+    "relayerKey": "0x2fae6ac1ef9af417f7f3d6db648fd33d124ba972e4fd5fd68fc2079ff54b3946",
+    "adminKeys": [
+      "0x2fae6ac1ef9af417f7f3d6db648fd33d124ba972e4fd5fd68fc2079ff54b3946"
+    ],
+    "threshold": 4,
+    "lastRelayedBlock": 9,
+    "lastExpressedBlock": 9,
+    "gatewayAddress": "0x1783E7C34Aa120Ea6EC91F0956408060f4aC0391",
+    "gasReceiverAddress": "0x3c485956b6DdC6CBb542c03299CE9d56aD1D4BF0",
+    "constAddressDeployerAddress": "0x69aeB7Dc4f2A86873Dae8D753DE89326Cf90a77a",
+    "create3DeployerAddress": "0x783E7717fD4592814614aFC47ee92568a495Ce0B",
+    "InterchainTokenService": "0x257C3e25393E8Bf4404F81B054a303CfF9F4019b",
+    "InterchainTokenFactory": "0x37dCBC67337048B4D51c6D3B8Ced6f87A472789b",
+    "tokens": {
+      "aUSDX": "aUSDX"
+    },
+    "rpc": "http://127.0.0.1:8545"
   }
 ]

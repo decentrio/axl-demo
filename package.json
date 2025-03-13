@@ -18,8 +18,10 @@
     "@axelar-network/axelar-gmp-sdk-solidity": "^6.0.6",
     "@axelar-network/axelar-local-dev": "file:../axelar-local-dev/packages/axelar-local-dev",
     "@axelar-network/interchain-token-service": "^2.1.0",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "ethers": "^5.7.2",
+    "fs": "^0.0.1-security",
     "fs-extra": "^9.1.0"
   }
 }
