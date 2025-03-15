@@ -1,8 +1,9 @@
 const { Network, relay, EvmRelayer, networks, deployContract } = require('@axelar-network/axelar-local-dev');
-const { ethers, Wallet } = require('ethers');
+const { ethers, Wallet, Contract } = require('ethers');
 const { outputJsonSync } = require('fs-extra');
 const crypto = require("crypto");
 const fs = require("fs");
+const { keccak256, toUtf8Bytes } = require('ethers/lib/utils');
 const seed = "include forward empty route clown nature era decorate settle market defy certain"
 
 const defaultEvmRelayer = new EvmRelayer();
@@ -12,7 +13,7 @@ async function main() {
     // await setupNetwork("Ganache", "http://127.0.0.1:7545")
     const chains = [
         { name: "Ganache", rpcUrl: "http://127.0.0.1:7545" },
-        // { name: "Realio", rpcUrl: "http://127.0.0.1:8545" }
+        { name: "Realio", rpcUrl: "http://127.0.0.1:8545" }
     ]
     await setupAndExport(chains)
 }
@@ -58,8 +59,9 @@ async function setupAndExport(chains) {
     // evmRelayer?.subscribeExpressCall();
     // await deployTokens(networks)
     await deployCustomTokens(networks)
-    networks[0].deployCon
-    setJSON(networkInfos, _options.chainOutputPath);
+    // networks[0].deployCon
+    // setJSON(networkInfos, _options.chainOutputPath);
+    // console.log("start send token")
     // await sendTokens(networks)
     return networks;
 }
@@ -84,7 +86,9 @@ async function deployTokens(networks) {
 
 async function deployCustomTokens(networks) {
     contractJson = JSON.parse(fs.readFileSync("contracts/DSTRXToken.json", "utf8"));
+    
     const salt = "0x" + crypto.randomBytes(32).toString("hex");
+    console.log("salt", salt)
 
     // deloy token on Ganache
     const ganache = networks[0]
@@ -95,11 +99,10 @@ async function deployCustomTokens(networks) {
     sleep(2000)
 
     // register token metadata on Ganache
-    console.log("interchainTokenService", ganache.interchainTokenService)
     await ganache.interchainTokenService.registerTokenMetadata(
         ganacheToken.address,
         ethers.utils.parseEther("0.0001"), // gas value
-        { value: ethers.utils.parseEther("0.001") },
+        { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000},
     );
     sleep(2000)
 
@@ -108,16 +111,17 @@ async function deployCustomTokens(networks) {
     const realioWallet = realio.ownerWallet
     realioToken = await deployContract(realioWallet, contractJson, [realioWallet.address])
     // await ganache.giveToken(userWallet.address, "DSTRX", BigInt(100e6));
-    console.log("Deploy token on Realio at", realio.address)
+    console.log("Deploy token on Realio at", realioToken.address)
     sleep(2000)
 
     // register token metadata on Realio
-    await ganache.interchainTokenService.registerTokenMetadata(
+    await realio.interchainTokenService.registerTokenMetadata(
         realioToken.address,
         ethers.utils.parseEther("0.0001"), // gas value
-        { value: ethers.utils.parseEther("0.001") },
+        { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
       );
     sleep(2000)
+    console.log("Registered on Realio")
     
     // register token with Interchain Token Factory on Ganache
     await ganache.interchainTokenFactory.registerCustomToken(
@@ -142,7 +146,7 @@ async function deployCustomTokens(networks) {
     sleep(2000)
 
     // Assign the minter role to TokenManager on Ganache
-    tokenId = await ganache.interchainTokenFactory.linkedTokenId(
+    const tokenId = await ganache.interchainTokenFactory.linkedTokenId(
         userWallet.address, // sender
         salt, // salt, same as previously used
     );
@@ -152,6 +156,81 @@ async function deployCustomTokens(networks) {
     const realioTokenManagerAddress = await realio.interchainTokenService.tokenManagerAddress(tokenId);
     console.log("realio tokenManagerAddress", realioTokenManagerAddress)
 
+
+
+    // SEND
+    const ganacheTokenContract = new Contract(ganacheToken.address, contractJson.abi, ganache.provider);
+    const realioTokenContract = new Contract(realioToken.address, contractJson.abi, realio.provider);
+
+    console.log(
+        (await ganacheTokenContract.balanceOf(userWallet.address)) / 1e6,
+        "DSTRX in Ganache wallet before send"
+    );
+
+    // Approve the gateway to use tokens on the source chain (Ganache)
+    const ganacheApproveTx = await ganacheTokenContract
+        .connect(userWallet)
+        .approve(ganache.interchainTokenService.address, 100e6, { gasLimit: 5000000 });
+    // await ganacheApproveTx.wait();
+    await sleep(2000)
+
+    await ganacheTokenContract
+    .connect(userWallet)
+    .approve(ganache.gateway.address, 100e6, { gasLimit: 5000000 });
+    console.log("Approved")
+
+    // Transfer minter role
+
+
+    await sleep(5000)
+    console.log("Ngu con me m di ")
+    const transferMinterTx = await realioTokenContract
+        .connect(realioWallet)
+        .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), realioTokenManagerAddress, { gasLimit: 5000000 });
+    // await transferMinterTx.wait();
+    console.log("Transfer minter role")
+
+    // Request the Ethereum gateway to send tokens to the Realio network
+    // const ganacheGatewayTx = await ganache.gateway
+    //     .connect(userWallet)
+    //     .sendToken(realio.name, realioWallet.address, "DSTRX", 100e6, { gasLimit: 5000000 });
+    // await ganacheGatewayTx.wait();
+
+    const ganacheGatewayTx = await ganache.interchainTokenService
+        .interchainTransfer(
+            tokenId, 
+            "Realio", 
+            realioWallet.address, 
+            100e5,
+            "0x",
+            ethers.utils.parseEther("0.001"), // gasValue 
+            { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 }
+        );
+    await ganacheGatewayTx.wait();
+
+    // Log the token balances
+    console.log(
+        (await ganacheTokenContract.balanceOf(userWallet.address)) / 1e6,
+        "DSTRX in Ganache wallet before relay"
+    );
+    console.log(
+        (await realioTokenContract.balanceOf(realioWallet.address)) / 1e6,
+        "DSTRX in Realio wallet before relay"
+    );
+
+    // Relay the transactions
+    await relay();
+    await sleep(10000)
+
+    // Log the token balances
+    console.log(
+        (await ganacheTokenContract.balanceOf(userWallet.address)) / 1e6,
+        "aUSDX in Ganache wallet"
+    );
+    console.log(
+        (await realioTokenContract.balanceOf(realioWallet.address)) / 1e6,
+        "aUSDX in Realio wallet"
+    );
 }
 
 async function sendTokens(networks) {
@@ -162,8 +241,8 @@ async function sendTokens(networks) {
     const [realioUserWallet] = realio.userWallets;
 
     // Get the token contracts for both Ethereum and Avalanche networks
-    const usdcGanacheContract = await ganache.getTokenContract("aUSDX");
-    const usdcRealioContract = await realio.getTokenContract("aUSDX");
+    const usdcGanacheContract = await ganache.getTokenContract("DSTRX");
+    const usdcRealioContract = await realio.getTokenContract("DSTRX");
 
     console.log(
         (await usdcGanacheContract.balanceOf(ganacheUserWallet.address)) / 1e6,
@@ -179,17 +258,17 @@ async function sendTokens(networks) {
     // Request the Ethereum gateway to send tokens to the Realio network
     const ganacheGatewayTx = await ganache.gateway
         .connect(ganacheUserWallet)
-        .sendToken(realio.name, realioUserWallet.address, "aUSDX", 100e6);
+        .sendToken(realio.name, realioUserWallet.address, "DSTRX", 100e6);
     await ganacheGatewayTx.wait();
 
     // Log the token balances
     console.log(
         (await usdcGanacheContract.balanceOf(ganacheUserWallet.address)) / 1e6,
-        "aUSDX in Ganache wallet before relay"
+        "DSTRX in Ganache wallet before relay"
     );
     console.log(
         (await usdcRealioContract.balanceOf(realioUserWallet.address)) / 1e6,
-        "aUSDX in Realio wallet before relay"
+        "DSTRX in Realio wallet before relay"
     );
 
     // Relay the transactions
@@ -238,8 +317,11 @@ async function setupNetwork(name, urlOrProvider) {
     await sleep(5000)
     nonce = await chain.provider.getTransactionCount(userWallet.address, "pending")
     console.log("nonce", nonce)
+    const salt = "0x" + crypto.randomBytes(32).toString("hex");
+    console.log("salt", salt)
     await chain.deployInterchainTokenService();
     chain.tokens = {};
+
     return chain;
 }
 
@@ -249,10 +331,10 @@ function getDefaultLocalWallets() {
     const wallets = [];
 
     for (let i = 0; i < 1; i++) {
-        wallets.push(Wallet.fromMnemonic(defaultSeed, `m/44'/60'/0'/0/${i}`));
+        wallets.push(Wallet.fromMnemonic(defaultSeed, `m/44'/60'/0'/0/${1}`));
     }
 
-    wallets.push(new Wallet("0xCA8920CA65CD664FBCC7A1E3E68E5EEE0CCCD395C61D85E3E8059D0943A4876F"))
+    wallets.push(new Wallet("0xF731015FDE5B2BF705B860C1D98C79F9B36E793620A0D566B1C598CF633AACE3"))
 
     return wallets;
 }
@@ -274,6 +356,14 @@ async function registerRemoteITS(networks) {
                     await network.interchainTokenService.populateTransaction.setTrustedAddress(
                         otherNetwork.name,
                         otherNetwork.interchainTokenService.address
+                    )
+                ).data
+            );
+            data.push(
+                (
+                    await network.interchainTokenService.populateTransaction.setTrustedAddress(
+                        "axelar",
+                        "axelar1puut77ku823785u3c7aalwqdrawe3lnjxuv68x"
                     )
                 ).data
             );
