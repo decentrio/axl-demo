@@ -4,10 +4,7 @@ const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
 require('dotenv').config()
-const { keccak256, toUtf8Bytes } = require('ethers/lib/utils');
-
 const DSTRXToken = require("../hardhat/artifacts/contracts/DSTRXToken.sol/DSTRXToken.json")
-
 const args = process.argv;
 const userArgs = args.slice(2);
 
@@ -28,52 +25,32 @@ async function registerCustomTokens(network1, network2) {
     const itfContract1 = getContract(network1, network1.contracts.InterchainTokenFactory.address, getContractJSON('InterchainTokenFactory').abi)
     const itsContract2 = getContract(network2, network2.contracts.InterchainTokenService.address, getContractJSON('InterchainTokenService').abi)
     const itfContract2 = getContract(network2, network2.contracts.InterchainTokenFactory.address, getContractJSON('InterchainTokenFactory').abi)
-    console.log("xxxxxx1")
-    // await itsContract1.registerTokenMetadata(
-    //     userArgs[2],
-    //     ethers.utils.parseEther("0.0001"), // gas value
-    //     { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
-    // );
-    // sleep(2000)
+    const tokenId1 = await itfContract1.linkedTokenId(
+        process.env.PUBLIC_KEY, // sender
+        salt, // salt, same as previously used
+    );
+    const tokenId2 = await itfContract2.linkedTokenId(
+        process.env.PUBLIC_KEY, // sender
+        salt, // salt, same as previously used
+    );
+    const tokenContract = getContract(network1, userArgs[2], DSTRXToken.abi);
+
+    // Approve the gateway to use tokens on the source chain (Ganache)
+    await tokenContract
+        .approve(itsContract1.address, 1000000, { gasLimit: 5000000 });
+    await sleep(2000)
+
+    await itsContract1.interchainTransfer(
+        tokenId1,
+        network2.axelarId, // destination chain
+        "0xA8B2A4c734A208FF16497E3b405BbB96d2976F96",
+        100000,
+        ethers.utils.toUtf8Bytes(''),
+        ethers.utils.parseEther("0.002"), // gas value
+        { value: ethers.utils.parseEther("0.002"), gasLimit: 5000000 },
+    );
+    sleep(2000)
     console.log("xxxxxx2")
-    // await itsContract2.registerTokenMetadata(
-    //     userArgs[3],
-    //     ethers.utils.parseEther("0.0001"), // gas value
-    //     { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
-    // );
-    // sleep(2000)
-    console.log("xxxxxx3")
-
-    // await itfContract1.registerCustomToken(
-    //     salt,
-    //     userArgs[2],
-    //     4,
-    //     process.env.PUBLIC_KEY,
-    //     { value: ethers.utils.parseEther("0.001") },
-    // );
-    // sleep(2000)
-    console.log("xxxxxx4")
-    // await itfContract2.registerCustomToken(
-    //     salt,
-    //     userArgs[3],
-    //     4,
-    //     process.env.PUBLIC_KEY,
-    //     { value: ethers.utils.parseEther("0.001") },
-    // );
-    // sleep(2000)
-    console.log("xxxxxx5")
-
-    // await itfContract1.linkToken(
-    //     salt, // salt, same as previously used
-    //     network2.axelarId, // destination chain
-    //     userArgs[3], // destination token address
-    //     4, // token manager type
-    //     process.env.PUBLIC_KEY, //  the address of the operator - linkParams
-    //     ethers.utils.parseEther("0.001"), // gas value
-    //     { value: ethers.utils.parseEther("0.001") },
-    // );
-    // sleep(2000)
-    console.log("xxxxxx6")
     // await itfContract2.linkToken(
     //     salt, // salt, same as previously used
     //     network1.axelarId, // destination chain
@@ -84,29 +61,7 @@ async function registerCustomTokens(network1, network2) {
     //     { value: ethers.utils.parseEther("0.001") },
     // );
     // // sleep(2000)
-    console.log("xxxxxx7")
-
-    const tokenId1 = await itfContract1.linkedTokenId(
-        process.env.PUBLIC_KEY, // sender
-        salt, // salt, same as previously used
-    );
-    const tokenManagerAddress1 = await itsContract1.tokenManagerAddress(tokenId1);
-    console.log("tokenManagerAddress", tokenManagerAddress1)
-
-    const tokenId2 = await itfContract2.linkedTokenId(
-        process.env.PUBLIC_KEY, // sender
-        salt, // salt, same as previously used
-    );
-    const tokenManagerAddress2 = await itsContract2.tokenManagerAddress(tokenId2);
-    console.log("tokenManagerAddress", tokenManagerAddress2)
-    const tokenContract1 = getContract(network1, userArgs[2], DSTRXToken.abi);
-    const tokenContract2 = getContract(network2, userArgs[3], DSTRXToken.abi);
-
-    
-    await tokenContract1
-        .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress1, { gasLimit: 5000000 });
-    await tokenContract2
-        .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress1, { gasLimit: 5000000 });
+    console.log("xxxxxx3")
 }
 
 function getContractPath(contractName, projectRoot = '') {
@@ -182,6 +137,7 @@ function findContractPath(dir, contractName) {
 }
 
 function getContract(network, address, abi) {
+    console.log(network.rpc, address)
     const provider = new ethers.providers.JsonRpcProvider(network.rpc);
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
     return new ethers.Contract(address, abi, wallet);
