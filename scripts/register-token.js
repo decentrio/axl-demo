@@ -1,6 +1,5 @@
 const { ethers } = require("ethers");
 const info = require("../testnet.json");
-const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
 require('dotenv').config()
@@ -22,77 +21,73 @@ function sleep(ms) {
 }
 
 async function registerCustomTokens(network1, network2) {
-    const salt = "0x1f3cc8f0069172b8715097bb317676760e362fc548661d900fa1ad73e4aa1e1e";
+    const salt = process.env.SALT;
     console.log("salt", salt)
     const itsContract1 = getContract(network1, network1.contracts.InterchainTokenService.address, getContractJSON('InterchainTokenService').abi)
     const itfContract1 = getContract(network1, network1.contracts.InterchainTokenFactory.address, getContractJSON('InterchainTokenFactory').abi)
     const itsContract2 = getContract(network2, network2.contracts.InterchainTokenService.address, getContractJSON('InterchainTokenService').abi)
     const itfContract2 = getContract(network2, network2.contracts.InterchainTokenFactory.address, getContractJSON('InterchainTokenFactory').abi)
     console.log("xxxxxx1")
-    // await itsContract1.registerTokenMetadata(
-    //     userArgs[2],
-    //     ethers.utils.parseEther("0.0001"), // gas value
-    //     { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
-    // );
-    // sleep(2000)
+    await itsContract1.registerTokenMetadata(
+        userArgs[2],
+        ethers.utils.parseEther("0.0001"), // gas value
+        { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
+    );
+    await sleep(2000)
     console.log("xxxxxx2")
-    // await itsContract2.registerTokenMetadata(
-    //     userArgs[3],
-    //     ethers.utils.parseEther("0.0001"), // gas value
-    //     { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
-    // );
-    // sleep(2000)
+    await itsContract2.registerTokenMetadata(
+        userArgs[2],
+        ethers.utils.parseEther("0.0001"), // gas value
+        { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
+    );
+    await sleep(2000)
     console.log("xxxxxx3")
-
-    // await itfContract1.registerCustomToken(
-    //     salt,
-    //     userArgs[2],
-    //     4,
-    //     process.env.PUBLIC_KEY,
-    //     { value: ethers.utils.parseEther("0.001") },
-    // );
-    // sleep(2000)
+    await itfContract1.registerCustomToken(
+        salt,
+        userArgs[2],
+        4,
+        process.env.PUBLIC_KEY,
+        { value: ethers.utils.parseEther("0.001") },
+    );
+    await sleep(2000)
     console.log("xxxxxx4")
-    // await itfContract2.registerCustomToken(
-    //     salt,
-    //     userArgs[3],
-    //     4,
-    //     process.env.PUBLIC_KEY,
-    //     { value: ethers.utils.parseEther("0.001") },
-    // );
-    // sleep(2000)
+    await itfContract2.registerCustomToken(
+        salt,
+        userArgs[2],
+        4,
+        process.env.PUBLIC_KEY,
+        { value: ethers.utils.parseEther("0.001") },
+    );
+    await sleep(2000)
     console.log("xxxxxx5")
-
-    // await itfContract1.linkToken(
-    //     salt, // salt, same as previously used
-    //     network2.axelarId, // destination chain
-    //     userArgs[3], // destination token address
-    //     4, // token manager type
-    //     process.env.PUBLIC_KEY, //  the address of the operator - linkParams
-    //     ethers.utils.parseEther("0.001"), // gas value
-    //     { value: ethers.utils.parseEther("0.001") },
-    // );
-    // sleep(2000)
+    await itfContract1.linkToken(
+        salt, // salt, same as previously used
+        network2.axelarId, // destination chain
+        userArgs[2], // destination token address
+        4, // token manager type
+        process.env.PUBLIC_KEY, //  the address of the operator - linkParams
+        ethers.utils.parseEther("0.001"), // gas value
+        { value: ethers.utils.parseEther("0.001") },
+    );
+    await sleep(2000)
     console.log("xxxxxx6")
-    // await itfContract2.linkToken(
-    //     salt, // salt, same as previously used
-    //     network1.axelarId, // destination chain
-    //     userArgs[2], // destination token address
-    //     4, // token manager type
-    //     process.env.PUBLIC_KEY, //  the address of the operator - linkParams
-    //     ethers.utils.parseEther("0.001"), // gas value
-    //     { value: ethers.utils.parseEther("0.001") },
-    // );
-    // // sleep(2000)
+    await itfContract2.linkToken(
+        salt, // salt, same as previously used
+        network1.axelarId, // destination chain
+        userArgs[2], // destination token address
+        4, // token manager type
+        process.env.PUBLIC_KEY, //  the address of the operator - linkParams
+        ethers.utils.parseEther("0.001"), // gas value
+        { value: ethers.utils.parseEther("0.001") },
+    );
+    await sleep(2000)
     console.log("xxxxxx7")
-
     const tokenId1 = await itfContract1.linkedTokenId(
         process.env.PUBLIC_KEY, // sender
         salt, // salt, same as previously used
     );
     const tokenManagerAddress1 = await itsContract1.tokenManagerAddress(tokenId1);
     console.log("tokenManagerAddress", tokenManagerAddress1)
-
     const tokenId2 = await itfContract2.linkedTokenId(
         process.env.PUBLIC_KEY, // sender
         salt, // salt, same as previously used
@@ -100,12 +95,16 @@ async function registerCustomTokens(network1, network2) {
     const tokenManagerAddress2 = await itsContract2.tokenManagerAddress(tokenId2);
     console.log("tokenManagerAddress", tokenManagerAddress2)
     const tokenContract1 = getContract(network1, userArgs[2], DSTRXToken.abi);
-    const tokenContract2 = getContract(network2, userArgs[3], DSTRXToken.abi);
+    const tokenContract2 = getContract(network2, userArgs[2], DSTRXToken.abi);
 
     await tokenContract1
         .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress1, { gasLimit: 5000000 });
+    console.log("xxxxxx8")
+    await sleep(2000)
     await tokenContract2
         .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress2, { gasLimit: 5000000 });
+    await sleep(2000)
+    console.log("xxxxxx9")
 }
 
 function getContractPath(contractName, projectRoot = '') {

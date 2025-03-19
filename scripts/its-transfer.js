@@ -43,7 +43,7 @@ async function registerCustomTokens(network1, network2) {
     await itsContract1.interchainTransfer(
         tokenId1,
         network2.axelarId, // destination chain
-        "0xA8B2A4c734A208FF16497E3b405BbB96d2976F96",
+        "0x11818ED622bA462945e83F641E793F0e5Df4c06e",
         100000,
         ethers.utils.toUtf8Bytes(''),
         ethers.utils.parseEther("0.002"), // gas value
