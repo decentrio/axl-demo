@@ -23,19 +23,23 @@ function sleep(ms) {
 async function registerCustomTokens(network1, network2) {
     const salt = process.env.SALT;
     console.log("salt", salt)
+    const itsContract1 = getContract(network1, network1.contracts.InterchainTokenService.address, getContractJSON('InterchainTokenService').abi)
+    const itfContract1 = getContract(network1, network1.contracts.InterchainTokenFactory.address, getContractJSON('InterchainTokenFactory').abi)
+    const itsContract2 = getContract(network2, network2.contracts.InterchainTokenService.address, getContractJSON('InterchainTokenService').abi)
+    const itfContract2 = getContract(network2, network2.contracts.InterchainTokenFactory.address, getContractJSON('InterchainTokenFactory').abi)
 
-    // const tokenId1 = await itfContract1.linkedTokenId(
-    //     process.env.PUBLIC_KEY, // sender
-    //     salt, // salt, same as previously used
-    // );
-    // const tokenManagerAddress1 = await itsContract1.tokenManagerAddress(tokenId1);
-    // console.log("tokenManagerAddress", tokenManagerAddress1)
-    // const tokenId2 = await itfContract2.linkedTokenId(
-    //     process.env.PUBLIC_KEY, // sender
-    //     salt, // salt, same as previously used
-    // );
-    // const tokenManagerAddress2 = await itsContract2.tokenManagerAddress(tokenId2);
-    // console.log("tokenManagerAddress", tokenManagerAddress2)
+    const tokenId1 = await itfContract1.linkedTokenId(
+        process.env.PUBLIC_KEY, // sender
+        salt, // salt, same as previously used
+    );
+    const tokenManagerAddress1 = await itsContract1.tokenManagerAddress(tokenId1);
+    console.log("tokenManagerAddress", tokenManagerAddress1)
+    const tokenId2 = await itfContract2.linkedTokenId(
+        process.env.PUBLIC_KEY, // sender
+        salt, // salt, same as previously used
+    );
+    const tokenManagerAddress2 = await itsContract2.tokenManagerAddress(tokenId2);
+    console.log("tokenManagerAddress", tokenManagerAddress2)
     const tokenContract1 = getContract(network1, userArgs[2], DSTRXToken.abi);
     const tokenContract2 = getContract(network2, userArgs[3], DSTRXToken.abi);
 
@@ -49,10 +53,10 @@ async function registerCustomTokens(network1, network2) {
     // console.log("xxxxxx9")
     
     let hasRole1 = await tokenContract1
-        .hasRole(keccak256(toUtf8Bytes("0x00")), process.env.PUBLIC_KEY);
+        .hasRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress1);
     console.log("xxxxxx8", hasRole1)
     let hasRole2 = await tokenContract2
-        .hasRole(keccak256(toUtf8Bytes("0x00")), process.env.PUBLIC_KEY);
+        .hasRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress2);
     console.log("xxxxxx8", hasRole2)
 }
 
