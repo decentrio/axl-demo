@@ -102,11 +102,10 @@ async function registerCustomTokens(network1, network2) {
     const tokenContract1 = getContract(network1, userArgs[2], DSTRXToken.abi);
     const tokenContract2 = getContract(network2, userArgs[3], DSTRXToken.abi);
 
-    
     await tokenContract1
         .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress1, { gasLimit: 5000000 });
     await tokenContract2
-        .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress1, { gasLimit: 5000000 });
+        .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress2, { gasLimit: 5000000 });
 }
 
 function getContractPath(contractName, projectRoot = '') {
