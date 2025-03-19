@@ -36,7 +36,7 @@ async function registerCustomTokens(network1, network2) {
     await sleep(2000)
     console.log("xxxxxx2")
     await itsContract2.registerTokenMetadata(
-        userArgs[2],
+        userArgs[3],
         ethers.utils.parseEther("0.0001"), // gas value
         { value: ethers.utils.parseEther("0.001"), gasLimit: 5000000 },
     );
@@ -53,17 +53,17 @@ async function registerCustomTokens(network1, network2) {
     console.log("xxxxxx4")
     await itfContract2.registerCustomToken(
         salt,
-        userArgs[2],
+        userArgs[3],
         4,
         process.env.PUBLIC_KEY,
         { value: ethers.utils.parseEther("0.001") },
     );
-    await sleep(2000)
+    await sleep(7000)
     console.log("xxxxxx5")
     await itfContract1.linkToken(
         salt, // salt, same as previously used
         network2.axelarId, // destination chain
-        userArgs[2], // destination token address
+        userArgs[3], // destination token address
         4, // token manager type
         process.env.PUBLIC_KEY, //  the address of the operator - linkParams
         ethers.utils.parseEther("0.001"), // gas value
@@ -95,7 +95,7 @@ async function registerCustomTokens(network1, network2) {
     const tokenManagerAddress2 = await itsContract2.tokenManagerAddress(tokenId2);
     console.log("tokenManagerAddress", tokenManagerAddress2)
     const tokenContract1 = getContract(network1, userArgs[2], DSTRXToken.abi);
-    const tokenContract2 = getContract(network2, userArgs[2], DSTRXToken.abi);
+    const tokenContract2 = getContract(network2, userArgs[3], DSTRXToken.abi);
 
     await tokenContract1
         .grantRole(keccak256(toUtf8Bytes("MINTER_ROLE")), tokenManagerAddress1, { gasLimit: 5000000 });
