@@ -47,7 +47,7 @@ async function registerCustomTokens(network1, network2) {
         100000,
         ethers.utils.toUtf8Bytes(''),
         ethers.utils.parseEther("0.005"), // gas value
-        { value: ethers.utils.parseEther("0.005"), gasLimit: 5000000 },
+        { value: ethers.utils.parseEther("0.006"), gasLimit: 5000000 },
     );
     sleep(2000)
     console.log("xxxxxx2")
